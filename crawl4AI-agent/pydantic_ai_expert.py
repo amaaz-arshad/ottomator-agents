@@ -12,11 +12,18 @@ from pydantic_ai.models.openai import OpenAIModel
 from openai import AsyncOpenAI
 from supabase import Client
 from typing import List
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
-llm = os.getenv('LLM_MODEL', 'gpt-4o-mini')
-model = OpenAIModel(llm)
+llm = os.getenv('LLM_MODEL')
+model = OpenAIModel(
+    model_name=os.getenv("LLM_MODEL"),
+    api_key=os.getenv("OPENAI_API_KEY"),
+    base_url=os.getenv("BASE_URL")
+)
+embeddingModel = SentenceTransformer(os.getenv("EMBEDDING_MODEL"))
+
 
 logfire.configure(send_to_logfire='if-token-present')
 
@@ -49,14 +56,16 @@ pydantic_ai_expert = Agent(
 async def get_embedding(text: str, openai_client: AsyncOpenAI) -> List[float]:
     """Get embedding vector from OpenAI."""
     try:
-        response = await openai_client.embeddings.create(
-            model="text-embedding-3-small",
-            input=text
-        )
-        return response.data[0].embedding
+        embeddings = embeddingModel.encode(text).tolist()
+        return embeddings
+        # response = await openai_client.embeddings.create(
+        #     model="text-embedding-3-small",
+        #     input=text
+        # )
+        # return response.data[0].embedding
     except Exception as e:
         print(f"Error getting embedding: {e}")
-        return [0] * 1536  # Return zero vector on error
+        return [0] * 768  # Return zero vector on error
 
 @pydantic_ai_expert.tool
 async def retrieve_relevant_documentation(ctx: RunContext[PydanticAIDeps], user_query: str) -> str:
