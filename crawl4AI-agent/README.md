@@ -1,4 +1,4 @@
-# Pydantic AI: Documentation Crawler and RAG Agent
+# ConFlowGen: Documentation Crawler and RAG Agent
 
 An intelligent documentation crawler and RAG (Retrieval-Augmented Generation) agent built using Pydantic AI and Supabase. The agent can crawl documentation websites, store content in a vector database, and provide intelligent answers to user questions by retrieving and analyzing relevant documentation chunks.
 
@@ -21,11 +21,7 @@ An intelligent documentation crawler and RAG (Retrieval-Augmented Generation) ag
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/coleam00/ottomator-agents.git
-cd ottomator-agents/crawl4AI-agent
-```
+1. Clone the repository
 
 2. Install dependencies (recommended to use a Python virtual environment):
 ```bash
@@ -60,7 +56,7 @@ In Supabase, do this by going to the "SQL Editor" tab and pasting in the SQL int
 To crawl and store documentation in the vector database:
 
 ```bash
-python crawl_pydantic_ai_docs.py
+python crawl_conflowgen_docs.py
 ```
 
 This will:
@@ -98,7 +94,7 @@ CREATE TABLE site_pages (
 
 ### Chunking Configuration
 
-You can configure chunking parameters in `crawl_pydantic_ai_docs.py`:
+You can configure chunking parameters in `crawl_conflowgen_docs.py`:
 ```python
 chunk_size = 5000  # Characters per chunk
 ```
@@ -110,15 +106,11 @@ The chunker intelligently preserves:
 
 ## Project Structure
 
-- `crawl_pydantic_ai_docs.py`: Documentation crawler and processor
+- `crawl_conflowgen_docs.py`: Documentation crawler and processor
 - `pydantic_ai_expert.py`: RAG agent implementation
 - `streamlit_ui.py`: Web interface
 - `site_pages.sql`: Database setup commands
 - `requirements.txt`: Project dependencies
-
-## Live Agent Studio Version
-
-If you're interested in seeing how this agent is implemented in the Live Agent Studio, check out the `studio-integration-api` directory. This contains the API endpoint for the production version of the agent that runs on the platform.
 
 ## Error Handling
 

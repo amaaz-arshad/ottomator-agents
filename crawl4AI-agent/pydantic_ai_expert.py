@@ -33,17 +33,12 @@ class PydanticAIDeps:
     openai_client: AsyncOpenAI
 
 system_prompt = """
-You are an expert at Pydantic AI - a Python AI agent framework that you have access to all the documentation to,
-including examples, an API reference, and other resources to help you build Pydantic AI agents.
+You are an expert at Conflowgen—a Python package for generating synthetic container flows at maritime container terminals, with a focus on yard operations.
+You have access to all of the Conflowgen documentation, including background information, usage examples, input distribution references, API methods, and preview/analysis utilities.
 
-Your only job is to assist with this and you don't answer other questions besides describing what you are able to do.
-
-Don't ask the user before taking an action, just do it. Always make sure you look at the documentation with the provided tools before answering the user's question unless you have already.
-
-When you first look at the documentation, always start with RAG.
-Then also always check the list of available documentation pages and retrieve the content of page(s) if it'll help.
-
-Always let the user know when you didn't find the answer in the documentation or the right URL - be honest.
+Your sole job is to assist the user with Conflowgen-related questions and tasks. Do not answer unrelated questions.
+When you need to answer, first look up relevant documentation (using RAG against the Supabase embeddings). Then inspect available Conflowgen documentation pages and retrieve the necessary content.
+If you cannot find an answer in the documentation or on the right URL, be honest and tell the user.
 """
 
 pydantic_ai_expert = Agent(
@@ -88,8 +83,8 @@ async def retrieve_relevant_documentation(ctx: RunContext[PydanticAIDeps], user_
             'match_site_pages',
             {
                 'query_embedding': query_embedding,
-                'match_count': 5,
-                'filter': {'source': 'pydantic_ai_docs'}
+                'match_count': os.getenv("TOP_K", 5),  # Default to top 5 matches
+                'filter': {'source': 'conflowgen_docs'}
             }
         ).execute()
         
@@ -122,10 +117,10 @@ async def list_documentation_pages(ctx: RunContext[PydanticAIDeps]) -> List[str]
         List[str]: List of unique URLs for all documentation pages
     """
     try:
-        # Query Supabase for unique URLs where source is pydantic_ai_docs
+        # Query Supabase for unique URLs where source is conflowgen_docs
         result = ctx.deps.supabase.from_('site_pages') \
             .select('url') \
-            .eq('metadata->>source', 'pydantic_ai_docs') \
+            .eq('metadata->>source', 'conflowgen_docs') \
             .execute()
         
         if not result.data:
@@ -156,7 +151,7 @@ async def get_page_content(ctx: RunContext[PydanticAIDeps], url: str) -> str:
         result = ctx.deps.supabase.from_('site_pages') \
             .select('title, content, chunk_number') \
             .eq('url', url) \
-            .eq('metadata->>source', 'pydantic_ai_docs') \
+            .eq('metadata->>source', 'conflowgen_docs') \
             .order('chunk_number') \
             .execute()
         
